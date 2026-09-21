@@ -234,6 +234,7 @@
 
 .book:hover {
   background: var(--ink);
+  color: var(--pole-red);
 }
 
 /* Tablet */
