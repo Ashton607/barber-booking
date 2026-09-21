@@ -1,4 +1,5 @@
 import { getCalendarClient, BOOKING_CONFIG } from "@/lib/google-calendar";
+import { sendBookingEmails } from "@/lib/resend";
 
 // Keep in sync with the barbers in Booking.jsx
 const BARBERS = {
@@ -65,6 +66,13 @@ export async function POST(request) {
         extendedProperties: { private: { barber } },
       },
     });
+
+    // The calendar event is the source of truth: a failed email shouldn't fail the booking
+    try {
+      await sendBookingEmails({ start, barber, barberName, timezone });
+    } catch (emailErr) {
+      console.error("Booking notification email failed:", emailErr);
+    }
 
     return Response.json({
       success: true,
