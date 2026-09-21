@@ -1,6 +1,7 @@
 import Barbers from "@/components/barbers/Barbers";
 import Hero from "@/components/hero/Hero";
 import Services from "@/components/services/Services";
+import Testimonial from "@/components/testimonials/Testimonials";
 
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
     <Hero/>
     <Services/>
     <Barbers/>
+    <Testimonial/>
     </div>
   );
 }
