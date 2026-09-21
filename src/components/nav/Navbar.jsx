@@ -12,7 +12,7 @@ const figtree = Figtree({ subsets: ["latin"] });
 const BRAND = "Old Mill Barbers";
 
 const LINKS = [
-  { href: "/services", label: "Services" },
+  { href: "#services", label: "Services" },
   { href: "/barbers", label: "Our barbers" },
   { href: "/prices", label: "Prices" },
   { href: "/gallery", label: "Gallery" },

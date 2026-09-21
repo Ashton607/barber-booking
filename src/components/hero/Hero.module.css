@@ -162,7 +162,7 @@
 .input:checked + .slot {
   border-color: var(--ink);
   background: var(--ink);
-  color: #fff;
+  color: var(--pole-red);
 }
 
 .input:checked + .slot .barber {
@@ -214,6 +214,7 @@
 
 .book:hover {
   background: var(--ink);
+  color: var(--pole-red);
 }
 
 /* Stacked layout */

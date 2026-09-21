@@ -38,7 +38,7 @@ export default function Hero() {
             and we&rsquo;ll have your chair ready.
           </p>
           <p className={styles.hours}>Open Tuesday to Saturday, 9 am to 6 pm</p>
-          <Link href="/services" className={styles.textLink}>
+          <Link href="#services" className={styles.textLink}>
             See services and prices
           </Link>
         </div>

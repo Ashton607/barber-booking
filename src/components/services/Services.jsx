@@ -12,7 +12,7 @@ export const metadata = {
 };
 
 // Change this to your currency symbol
-const CURRENCY = "$";
+const CURRENCY = "R";
 
 // Placeholder menu: replace with your real services and prices
 const GROUPS = [
@@ -24,25 +24,25 @@ const GROUPS = [
       {
         name: "Classic cut",
         mins: 40,
-        price: 25,
+        price: 30,
         desc: "Scissors, clippers or both, shaped to suit your head and the way you part your hair.",
       },
       {
         name: "Skin fade",
         mins: 45,
-        price: 30,
+        price: 60,
         desc: "Faded down to the skin and blended into the length on top.",
       },
       {
         name: "Buzz cut",
         mins: 20,
-        price: 15,
+        price: 35,
         desc: "One guard all over, with the neckline and edges tidied.",
       },
       {
         name: "Kids' cut",
         mins: 30,
-        price: 18,
+        price: 30,
         desc: "For under 12s. Any style, and no fuss if they wriggle.",
       },
     ],
@@ -55,13 +55,13 @@ const GROUPS = [
       {
         name: "Beard trim",
         mins: 20,
-        price: 15,
+        price: 25,
         desc: "Shaped, lined up and tidied with clippers and a razor.",
       },
       {
         name: "Hot towel shave",
         mins: 30,
-        price: 28,
+        price: 25,
         desc: "Warm towels, lather and a slow, close shave, finished with balm.",
       },
     ],
@@ -74,13 +74,13 @@ const GROUPS = [
       {
         name: "Cut and beard",
         mins: 60,
-        price: 38,
+        price: 80,
         desc: "A classic cut or skin fade, plus a beard trim.",
       },
       {
         name: "Cut and hot towel shave",
         mins: 70,
-        price: 50,
+        price: 70,
         desc: "A classic cut or skin fade, then a full hot towel shave.",
       },
     ],
@@ -93,13 +93,13 @@ const GROUPS = [
       {
         name: "Wash and style",
         mins: 10,
-        price: 8,
+        price: 20,
         desc: "Shampoo, blow dry and styling product.",
       },
       {
         name: "Eyebrow tidy",
         mins: 5,
-        price: 5,
+        price: 25,
         desc: "Stray hairs trimmed back with clippers or thread.",
       },
     ],
@@ -123,7 +123,7 @@ const GOOD_TO_KNOW = [
 
 export default function Services() {
   return (
-    <main className={`${styles.page} ${figtree.className}`}>
+    <main id="services" className={`${styles.page} ${figtree.className}`}>
       <div className={styles.inner}>
         <header className={styles.header}>
           <h1 className={`${styles.title} ${bevan.className}`}>
