@@ -1,0 +1,404 @@
+.booking {
+  --paper: #f6f7f9;
+  --ink: #10203a;
+  --muted: #4a5a75;
+  --pole-red: #c0272d;
+  --pole-blue: #2a5da8;
+  --line: #d9dee6;
+  --faint: #a3adbe;
+
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 5rem;
+}
+
+/* Header */
+.header {
+  max-width: 40rem;
+  margin-bottom: 3rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.subtext {
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  font-size: 1.2rem;
+  line-height: 1.55;
+}
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 2.5rem;
+}
+
+/* Panels styled like the site's tickets */
+.panel {
+  position: relative;
+  padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+/* Static pole stripe along the left edge */
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--pole-red) 0 7.0711px,
+    #fff 7.0711px 14.1421px,
+    var(--pole-blue) 14.1421px 21.2132px,
+    #fff 21.2132px 28.2843px
+  );
+  background-size: 40px 40px;
+  border-right: 2px solid var(--ink);
+}
+
+.panelTitle {
+  margin: 0 0 1.25rem;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+/* Calendar */
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.monthLabel {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.monthNav:hover:not(:disabled) {
+  background: var(--ink);
+  color: #fff;
+}
+
+.monthNav:disabled {
+  border-color: var(--line);
+  color: var(--faint);
+  cursor: not-allowed;
+}
+
+.weekdayRow,
+.dayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.weekdayRow {
+  margin-bottom: 0.4rem;
+}
+
+.weekdayLabel {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dayBlank {
+  aspect-ratio: 1;
+}
+
+.day {
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.day:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.day:disabled {
+  border-color: transparent;
+  background: transparent;
+  color: var(--faint);
+  font-weight: 500;
+  cursor: not-allowed;
+}
+
+.dayToday {
+  border-color: var(--pole-red);
+  box-shadow: inset 0 0 0 1px var(--pole-red);
+}
+
+.daySelected,
+.daySelected:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+}
+
+/* Time slots */
+.helperText {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.slot {
+  padding: 0.8rem 0.5rem;
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.slot:hover {
+  border-color: var(--ink);
+}
+
+.slotSelected,
+.slotSelected:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Barber select */
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.select {
+  width: 100%;
+  padding: 0.8rem 2.75rem 0.8rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2310203a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Tear-off summary */
+.summary {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px dashed var(--ink);
+}
+
+.summaryLabel {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.summaryText {
+  margin: 0.25rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.submitButton {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.25rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--pole-red);
+  color: #fff;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--ink);
+}
+
+.submitButton:disabled {
+  background: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.errorText {
+  margin: 0.75rem 0 0;
+  color: var(--pole-red);
+  font-weight: 600;
+}
+
+/* Keyboard focus */
+.monthNav:focus-visible,
+.day:focus-visible,
+.slot:focus-visible,
+.select:focus-visible,
+.submitButton:focus-visible,
+.secondary:focus-visible {
+  outline: 3px solid var(--pole-blue);
+  outline-offset: 3px;
+}
+
+/* Confirmation */
+.confirmation {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2.5rem 3rem;
+}
+
+.confirmIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--pole-red);
+  color: #fff;
+}
+
+.confirmTitle {
+  margin: 1.5rem 0 0;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.confirmText {
+  margin: 1rem 0 0;
+  font-size: 1.15rem;
+  line-height: 1.55;
+}
+
+.secondary {
+  margin-top: 1.75rem;
+  padding: 0.85rem 1.75rem;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.secondary:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Tablet: calendar on the left, times and barber stacked on the right */
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 2rem;
+  }
+
+  .calendar {
+    grid-row: span 2;
+  }
+}
+
+/* Phone: one column */
+@media (max-width: 700px) {
+  .inner {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    margin-right: 6px;
+  }
+
+  .calendar {
+    grid-row: auto;
+  }
+
+  .confirmation {
+    margin-right: 6px;
+    padding: 2rem 1.25rem 2rem 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monthNav,
+  .day,
+  .slot,
+  .submitButton,
+  .secondary {
+    transition: none;
+  }
+}
