@@ -114,6 +114,7 @@ export default function Booking() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [form, setForm] = useState({ name: "", email: "" });
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
 
   const barber = BARBERS.find((b) => b.id === barberId);
@@ -176,7 +177,7 @@ export default function Booking() {
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start: selectedSlot.start, barber: barberId }),
+        body: JSON.stringify({ start: selectedSlot.start, barber: barberId, ...form }),
       });
       if (!res.ok) throw new Error("Booking failed");
       setStatus("success");
@@ -188,6 +189,7 @@ export default function Booking() {
   function bookAnother() {
     setStatus("idle");
     setSelectedSlot(null);
+    setForm({ name: "", email: "" });
     setRefreshKey((k) => k + 1);
   }
 
@@ -216,6 +218,7 @@ export default function Booking() {
               You&rsquo;re booked
             </h1>
             <p className={styles.confirmText}>
+              {form.name ? `${form.name}, ` : ""}
               {barber.name} will have your chair ready on {formatDate(selectedDate)} at{" "}
               {selectedSlot?.label}. See you then.
             </p>
@@ -334,6 +337,37 @@ export default function Booking() {
             </div>
           </div>
 
+          {/* Your details */}
+          <div className={styles.panel}>
+            <h2 className={`${styles.panelTitle} ${bevan.className}`}>Your details</h2>
+
+            <label htmlFor="name" className={styles.label}>
+              Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className={styles.input}
+              autoComplete="name"
+              required
+            />
+
+            <label htmlFor="email" className={styles.label}>
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className={styles.input}
+              autoComplete="email"
+              required
+            />
+          </div>
+
           {/* Barber and confirm */}
           <div className={styles.panel}>
             <h2 className={`${styles.panelTitle} ${bevan.className}`}>Your barber</h2>
@@ -365,7 +399,7 @@ export default function Booking() {
 
             <button
               type="submit"
-              disabled={!selectedSlot || status === "submitting"}
+              disabled={!selectedSlot || !form.name || !form.email || status === "submitting"}
               className={styles.submitButton}
             >
               {status === "submitting" ? "Booking…" : "Confirm booking"}

@@ -38,12 +38,19 @@
   line-height: 1.55;
 }
 
-/* Layout */
+/* Layout: calendar on the left, the other panels stacked on the right */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 350px 260px  350px 320px 1fr;
+  gap: 20px;
+  width: 100%;
+  margin-left: 8px;
   align-items: start;
-  gap: 2.5rem;
+  justify-content: center;
+}
+
+.calendar {
+  grid-row: span 3;
 }
 
 /* Panels styled like the site's tickets */
@@ -219,28 +226,50 @@
   color: #fff;
 }
 
-/* Barber select */
+/* Labels and fields: the barber select and the name/email inputs */
 .label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
-.select {
+.label + .label {
+  margin-top: 1rem;
+}
+
+.select,
+.input {
   width: 100%;
-  padding: 0.8rem 2.75rem 0.8rem 0.9rem;
+  padding: 0.5rem 0.2rem;
   border: 2px solid var(--ink);
   border-radius: 4px;
   background-color: #fff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2310203a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.9rem center;
   color: var(--ink);
   font: inherit;
   font-size: 1.05rem;
   font-weight: 600;
+}
+
+.select {
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2310203a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
   appearance: none;
   cursor: pointer;
+}
+
+.input {
+  margin-bottom: 1rem;
+}
+
+.input:last-of-type {
+  margin-bottom: 0;
+}
+
+.input::placeholder {
+  color: var(--faint);
+  font-weight: 500;
 }
 
 /* Tear-off summary */
@@ -300,6 +329,7 @@
 .day:focus-visible,
 .slot:focus-visible,
 .select:focus-visible,
+.input:focus-visible,
 .submitButton:focus-visible,
 .secondary:focus-visible {
   outline: 3px solid var(--pole-blue);
@@ -356,19 +386,7 @@
   color: #fff;
 }
 
-/* Tablet: calendar on the left, times and barber stacked on the right */
-@media (max-width: 1000px) {
-  .layout {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.5rem 2rem;
-  }
-
-  .calendar {
-    grid-row: span 2;
-  }
-}
-
-/* Phone: one column */
+/* Phone: one column, panels in document order */
 @media (max-width: 700px) {
   .inner {
     padding: 2.5rem 1.25rem 4rem;

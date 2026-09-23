@@ -17,15 +17,19 @@ export async function POST(request) {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const { start, barber } = body;
+  const { start, barber, name, email } = body;
 
-  if (!start || !barber) {
+  if (!start || !barber || !name || !email) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   const barberName = BARBERS[barber];
   if (!barberName) {
     return Response.json({ error: "Unknown barber" }, { status: 400 });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return Response.json({ error: "Invalid email" }, { status: 400 });
   }
 
   const startTime = new Date(start);
@@ -58,8 +62,8 @@ export async function POST(request) {
     const event = await calendar.events.insert({
       calendarId,
       requestBody: {
-        summary: `Haircut with ${barberName}`,
-        description: `Booked via the website.\nBarber: ${barberName}`,
+        summary: `Haircut with ${barberName} \u2013 ${name}`,
+        description: `Booked via the website.\nBarber: ${barberName}\nClient: ${name} (${email})`,
         start: { dateTime: startTime.toISOString(), timeZone: timezone },
         end: { dateTime: endTime.toISOString(), timeZone: timezone },
         // Lets the availability route and the check above filter by barber
@@ -69,7 +73,7 @@ export async function POST(request) {
 
     // The calendar event is the source of truth: a failed email shouldn't fail the booking
     try {
-      await sendBookingEmails({ start, barber, barberName, timezone });
+      await sendBookingEmails({ start, barber, barberName, name, email, timezone });
     } catch (emailErr) {
       console.error("Booking notification email failed:", emailErr);
     }
