@@ -22,6 +22,20 @@ const BARBERS = [
   { id: "tomas", name: "Tomas", role: "Barber" },
 ];
 
+// Prices in Rand. Keep in sync with /api/checkout and /api/webhooks/yoco
+const SERVICES = [
+  { id: "classic", name: "Classic cut", price: 30 },
+  { id: "fade", name: "Skin fade", price: 60 },
+  { id: "buzz", name: "Buzz cut", price: 35 },
+  { id: "kids", name: "Kids' cut", price: 30 },
+  { id: "beard", name: "Beard trim", price: 25 },
+  { id: "shave", name: "Hot towel shave", price: 25 },
+  { id: "cut-beard", name: "Cut and beard", price: 80 },
+  { id: "wash-style", name: "Wash & style", price: 20 },
+  { id: "eyebrows", name: "Eyebrow tidy", price: 25 },
+
+];
+
 function toISODate(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -110,6 +124,7 @@ export default function Booking() {
   );
   const [selectedDate, setSelectedDate] = useState(firstOpenDay);
   const [barberId, setBarberId] = useState(BARBERS[0].id);
+  const [serviceId, setServiceId] = useState(SERVICES[0].id);
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -119,6 +134,8 @@ export default function Booking() {
   const [status, setStatus] = useState("idle");
 
   const barber = BARBERS.find((b) => b.id === barberId);
+  const service = SERVICES.find((s) => s.id === serviceId);
+  const depositAmount = (service.price / 2).toFixed(2);
 
   const grid = useMemo(
     () => buildMonthGrid(viewDate.getFullYear(), viewDate.getMonth()),
@@ -186,7 +203,12 @@ export default function Booking() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start: selectedSlot.start, barber: barberId, ...form }),
+        body: JSON.stringify({
+          start: selectedSlot.start,
+          barber: barberId,
+          service: serviceId,
+          ...form,
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data.redirectUrl) throw new Error("Checkout failed");
@@ -203,6 +225,7 @@ export default function Booking() {
     setStatus("idle");
     setSelectedSlot(null);
     setForm({ name: "", email: "" });
+    setServiceId(SERVICES[0].id);
     setRefreshKey((k) => k + 1);
   }
 
@@ -388,6 +411,23 @@ export default function Booking() {
               autoComplete="email"
               required
             />
+
+            <h2 className={`${styles.panelTitleCuts} ${bevan.className}`}>Cuts</h2>
+            <label htmlFor="service" className={styles.label}>
+            Select
+            </label>
+            <select
+              id="service"
+              value={serviceId}
+              onChange={(e) => setServiceId(e.target.value)}
+              className={styles.select}
+            >
+              {SERVICES.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} — R{s.price}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Barber and confirm */}
@@ -414,7 +454,7 @@ export default function Booking() {
               <p className={styles.summaryLabel}>Your booking</p>
               <p className={styles.summaryText}>
                 {selectedSlot
-                  ? `${formatDate(selectedDate)} at ${selectedSlot.label} with ${barber.name}`
+                  ? `${service.name} \u2013 ${formatDate(selectedDate)} at ${selectedSlot.label} with ${barber.name}`
                   : "Choose a time to continue."}
               </p>
             </div>
@@ -428,7 +468,8 @@ export default function Booking() {
             </button>
 
             <p className={styles.helperText}>
-              A R50 deposit is charged now, by card, to hold your slot.
+              A R{depositAmount} deposit (half the {service.name.toLowerCase()} price)
+              is charged now, by card, to hold your slot.
             </p>
 
             {status === "error" && (

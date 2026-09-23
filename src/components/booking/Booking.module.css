@@ -56,8 +56,10 @@
 /* Panels styled like the site's tickets */
 .panel {
   position: relative;
-  padding: 1.5rem 1.5rem 1.5rem 2.5rem;
-  overflow: hidden;
+  height: 370px;
+  padding: 1.5rem 1.5rem 5rem 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   border: 2px solid var(--ink);
   border-radius: 6px;

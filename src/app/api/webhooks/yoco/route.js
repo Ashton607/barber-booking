@@ -12,6 +12,18 @@ const BARBERS = {
   tomas: "Tomas",
 };
 
+// Prices in Rand. Keep in sync with Booking.jsx and the checkout route
+const SERVICES = {
+  classic: { name: "Classic cut", price: 25 },
+  fade: { name: "Skin fade", price: 30 },
+  buzz: { name: "Buzz cut", price: 15 },
+  kids: { name: "Kids' cut", price: 18 },
+  beard: { name: "Beard trim", price: 15 },
+  shave: { name: "Hot towel shave", price: 28 },
+  "cut-beard": { name: "Cut and beard", price: 38 },
+  "cut-shave": { name: "Cut and hot towel shave", price: 50 },
+};
+
 // Yoco signs webhooks the same way Svix / Standard Webhooks does:
 // https://developer.yoco.com/online/api-reference/webhooks/verifying-events/
 function isValidSignature({ id, timestamp, rawBody, signatureHeader }) {
@@ -71,10 +83,11 @@ export async function POST(request) {
     return Response.json({ received: true });
   }
 
-  const { start, barber, name, email } = event.payload?.metadata || {};
+  const { start, barber, service, name, email } = event.payload?.metadata || {};
   const barberName = BARBERS[barber];
+  const serviceInfo = SERVICES[service];
 
-  if (!start || !barberName || !name || !email) {
+  if (!start || !barberName || !serviceInfo || !name || !email) {
     console.error("Booking details missing from Yoco webhook metadata:", event.payload?.metadata);
     // Acknowledge anyway so Yoco doesn't keep retrying a payment we can't turn into a booking
     return Response.json({ received: true });
@@ -100,19 +113,27 @@ export async function POST(request) {
       await calendar.events.insert({
         calendarId,
         requestBody: {
-          summary: `Haircut with ${barberName} \u2013 ${name}`,
-          description: `Booked and paid for via the website.\nBarber: ${barberName}\nClient: ${name} (${email})\nPayment: ${event.payload.id}`,
+          summary: `${serviceInfo.name} with ${barberName} \u2013 ${name}`,
+          description: `Booked and paid for via the website.\nService: ${serviceInfo.name} (R${serviceInfo.price})\nBarber: ${barberName}\nClient: ${name} (${email})\nDeposit paid: R${(event.payload.amount / 100).toFixed(2)}\nPayment: ${event.payload.id}`,
           start: { dateTime: startTime.toISOString(), timeZone: timezone },
           end: { dateTime: endTime.toISOString(), timeZone: timezone },
           extendedProperties: {
-            private: { barber, paymentId: event.payload.id },
+            private: { barber, service, paymentId: event.payload.id },
           },
         },
       });
 
       // The calendar event is the source of truth: a failed email shouldn't fail the booking
       try {
-        await sendBookingEmails({ start, barber, barberName, name, email, timezone });
+        await sendBookingEmails({
+          start,
+          barber,
+          barberName,
+          service: serviceInfo.name,
+          name,
+          email,
+          timezone,
+        });
       } catch (emailErr) {
         console.error("Booking notification email failed:", emailErr);
       }

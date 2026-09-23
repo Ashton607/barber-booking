@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Bevan, Figtree } from "next/font/google";
-import styles from "./BookingSuccess.module.css";
+import styles from "./BookingSucess.module.css";
 
 const bevan = Bevan({ subsets: ["latin"], weight: "400" });
 const figtree = Figtree({ subsets: ["latin"] });

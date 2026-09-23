@@ -17,7 +17,7 @@ const BARBER_EMAILS = {
 // to the email address on your own Resend account.
 const FROM = process.env.BOOKING_FROM_EMAIL || "Old Mill Barbers <onboarding@resend.dev>";
 
-export async function sendBookingEmails({ start, barber, barberName, name, email, timezone }) {
+export async function sendBookingEmails({ start, barber, barberName, service, name, email, timezone }) {
   const when = new Date(start).toLocaleString("en-US", {
     timeZone: timezone,
     dateStyle: "full",
@@ -25,15 +25,15 @@ export async function sendBookingEmails({ start, barber, barberName, name, email
   });
 
   const results = await Promise.allSettled([
-    sendShopNotification({ when, barber, barberName, name, email }),
-    sendCustomerConfirmation({ when, barberName, name, email }),
+    sendShopNotification({ when, barber, barberName, service, name, email }),
+    sendCustomerConfirmation({ when, barberName, service, name, email }),
   ]);
 
   const failed = results.find((r) => r.status === "rejected");
   if (failed) throw failed.reason;
 }
 
-async function sendShopNotification({ when, barber, barberName, name, email }) {
+async function sendShopNotification({ when, barber, barberName, service, name, email }) {
   const to = [SHOP_EMAIL, BARBER_EMAILS[barber]].filter(Boolean);
   if (to.length === 0) return;
 
@@ -45,10 +45,10 @@ async function sendShopNotification({ when, barber, barberName, name, email }) {
     html: `
       <p>A new booking has come in through the website.</p>
       <p>
+        <strong>Service:</strong> ${service}<br />
         <strong>Barber:</strong> ${barberName}<br />
         <strong>When:</strong> ${when}<br />
-        <strong>Client:</strong> ${name} <br/>
-        <strong>Client Email:</strong> ${email}
+        <strong>Client:</strong> ${name} (${email})
       </p>
       <p>It has been added to the shop calendar.</p>
     `,
@@ -57,7 +57,7 @@ async function sendShopNotification({ when, barber, barberName, name, email }) {
   if (error) throw error;
 }
 
-async function sendCustomerConfirmation({ when, barberName, name, email }) {
+async function sendCustomerConfirmation({ when, barberName, service, name, email }) {
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
@@ -65,8 +65,8 @@ async function sendCustomerConfirmation({ when, barberName, name, email }) {
     html: `
       <p>Hi ${name},</p>
       <p>
-        You're booked in with <strong>${barberName}</strong> on
-        <strong>${when}</strong>. See you then.
+        You're booked in for a <strong>${service}</strong> with
+        <strong>${barberName}</strong> on <strong>${when}</strong>. See you then.
       </p>
       <p>If your plans change, just reply to this email.</p>
     `,
