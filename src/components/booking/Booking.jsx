@@ -115,7 +115,8 @@ export default function Booking() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [form, setForm] = useState({ name: "", email: "" });
-  const [status, setStatus] = useState("idle"); // idle | submitting | success | error
+  // idle | redirecting | success | cancelled | failed | error
+  const [status, setStatus] = useState("idle");
 
   const barber = BARBERS.find((b) => b.id === barberId);
 
@@ -128,13 +129,21 @@ export default function Booking() {
     viewDate.getFullYear() === today.getFullYear() &&
     viewDate.getMonth() === today.getMonth();
 
-  // Preselect a barber from links like /book?barber=Marcus
+  // Preselect a barber from links like /book?barber=Marcus, and pick up
+  // the payment outcome Yoco appends when it redirects the customer back
   useEffect(() => {
-    const name = new URLSearchParams(window.location.search).get("barber");
-    const match = BARBERS.find(
-      (b) => b.name.toLowerCase() === name?.toLowerCase()
-    );
+    const params = new URLSearchParams(window.location.search);
+
+    const name = params.get("barber");
+    const match = BARBERS.find((b) => b.name.toLowerCase() === name?.toLowerCase());
     if (match) setBarberId(match.id);
+
+    const paymentStatus = params.get("status");
+    if (["success", "cancelled", "failed"].includes(paymentStatus)) {
+      setStatus(paymentStatus);
+      // Drop ?status= from the URL so a refresh doesn't repeat it
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   // Load available times whenever the day or barber changes
@@ -172,15 +181,19 @@ export default function Booking() {
     e.preventDefault();
     if (!selectedSlot) return;
 
-    setStatus("submitting");
+    setStatus("redirecting");
     try {
-      const res = await fetch("/api/bookings", {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ start: selectedSlot.start, barber: barberId, ...form }),
       });
-      if (!res.ok) throw new Error("Booking failed");
-      setStatus("success");
+      const data = await res.json();
+      if (!res.ok || !data.redirectUrl) throw new Error("Checkout failed");
+
+      // The actual booking is created by the Yoco webhook once payment succeeds,
+      // so we hand off to their hosted checkout rather than showing success here
+      window.location.href = data.redirectUrl;
     } catch {
       setStatus("error");
     }
@@ -215,12 +228,11 @@ export default function Booking() {
               </svg>
             </div>
             <h1 className={`${styles.confirmTitle} ${bevan.className}`}>
-              You&rsquo;re booked
+              Payment received
             </h1>
             <p className={styles.confirmText}>
-              {form.name ? `${form.name}, ` : ""}
-              {barber.name} will have your chair ready on {formatDate(selectedDate)} at{" "}
-              {selectedSlot?.label}. See you then.
+              Your chair is booked. A confirmation email is on its way, and
+              the details are also in your inbox from Yoco.
             </p>
             <button type="button" className={styles.secondary} onClick={bookAnother}>
               Book another cut
@@ -239,6 +251,16 @@ export default function Booking() {
           <p className={styles.subtext}>
             Pick a day, a time and your barber. It takes about a minute.
           </p>
+          {status === "cancelled" && (
+            <p className={styles.errorText} role="alert">
+              Payment was cancelled. Nothing was charged, and no slot was booked.
+            </p>
+          )}
+          {status === "failed" && (
+            <p className={styles.errorText} role="alert">
+              The payment didn&rsquo;t go through. Please try again.
+            </p>
+          )}
         </header>
 
         <form onSubmit={handleSubmit} className={styles.layout}>
@@ -399,15 +421,19 @@ export default function Booking() {
 
             <button
               type="submit"
-              disabled={!selectedSlot || !form.name || !form.email || status === "submitting"}
+              disabled={!selectedSlot || !form.name || !form.email || status === "redirecting"}
               className={styles.submitButton}
             >
-              {status === "submitting" ? "Booking…" : "Confirm booking"}
+              {status === "redirecting" ? "Redirecting to payment…" : "Pay and confirm booking"}
             </button>
+
+            <p className={styles.helperText}>
+              A R50 deposit is charged now, by card, to hold your slot.
+            </p>
 
             {status === "error" && (
               <p className={styles.errorText} role="alert">
-                Something went wrong. Please try again.
+                Something went wrong starting the payment. Please try again.
               </p>
             )}
           </div>
