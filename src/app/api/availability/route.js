@@ -18,9 +18,10 @@ export async function GET(request) {
     const dayStart = new Date(`${date}T00:00:00`);
     const dayEnd = new Date(`${date}T23:59:59`);
 
-    // Block out weekends by default \u2014 adjust as needed
+    // Block days the shop is closed: Sunday and Monday.
+    // Keep this in sync with OPEN_DAYS in Booking.jsx (Tuesday to Saturday)
     const day = dayStart.getDay();
-    if (day === 0 || day === 6) {
+    if (day === 0 || day === 1) {
       return Response.json({ slots: [] });
     }
 
