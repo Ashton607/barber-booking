@@ -49,7 +49,7 @@ export default function BookingSuccess() {
           </div>
 
           <div className={styles.actions}>
-            <Link href="/book" className={styles.book}>
+            <Link href="/booking" className={styles.book}>
               Book another cut
             </Link>
             <Link href="/" className={styles.textLink}>
