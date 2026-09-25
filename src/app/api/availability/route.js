@@ -1,6 +1,6 @@
 import { getCalendarClient, BOOKING_CONFIG } from "@/lib/google-calendar";
 
-// GET /api/availability?date=2026-09-20
+// GET /api/availability?date=2026-09-20&barber=marcus
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
@@ -9,18 +9,21 @@ export async function GET(request) {
     return Response.json({ error: "Missing date parameter" }, { status: 400 });
   }
 
-  const { calendarId, timezone, startHour, endHour, slotMinutes } = BOOKING_CONFIG;
-
-  const dayStart = new Date(`${date}T00:00:00`);
-  const dayEnd = new Date(`${date}T23:59:59`);
-
-  // block out weekends by default — adjust as needed
-  const day = dayStart.getDay();
-  if (day === 0 || day === 6) {
-    return Response.json({ slots: [] });
-  }
-
   try {
+    // Reading BOOKING_CONFIG and creating the calendar client now happen
+    // inside the try block, so a bad env var or a bad config value gets
+    // caught and logged instead of crashing the route silently
+    const { calendarId, timezone, startHour, endHour, slotMinutes } = BOOKING_CONFIG;
+
+    const dayStart = new Date(`${date}T00:00:00`);
+    const dayEnd = new Date(`${date}T23:59:59`);
+
+    // Block out weekends by default \u2014 adjust as needed
+    const day = dayStart.getDay();
+    if (day === 0 || day === 6) {
+      return Response.json({ slots: [] });
+    }
+
     const calendar = getCalendarClient();
 
     const freeBusy = await calendar.freebusy.query({
@@ -34,7 +37,7 @@ export async function GET(request) {
 
     const busy = freeBusy.data.calendars[calendarId]?.busy || [];
 
-    // build every possible slot for the business day
+    // Build every possible slot for the business day
     const allSlots = [];
     for (let hour = startHour; hour < endHour; hour += slotMinutes / 60) {
       const slotStart = new Date(date);
@@ -43,7 +46,7 @@ export async function GET(request) {
       allSlots.push({ start: slotStart, end: slotEnd });
     }
 
-    // filter out any slot that overlaps a busy period, and past slots for today
+    // Filter out any slot that overlaps a busy period, and past slots for today
     const now = new Date();
     const availableSlots = allSlots.filter(({ start, end }) => {
       if (start < now) return false;
@@ -66,6 +69,12 @@ export async function GET(request) {
     });
   } catch (err) {
     console.error("Availability fetch failed:", err);
-    return Response.json({ error: "Could not load availability" }, { status: 500 });
+    // TEMPORARY: includes the real error message in the response so it shows
+    // up directly in the browser's Network tab. Remove the `detail` line
+    // once this is working, so internal errors aren't exposed to visitors.
+    return Response.json(
+      { error: "Could not load availability", detail: String(err?.message || err) },
+      { status: 500 }
+    );
   }
 }
