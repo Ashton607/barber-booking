@@ -1,5 +1,5 @@
 const YOCO_SECRET_KEY = process.env.YOCO_SECRET_KEY;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
+const SITE_URL = process.env.SITE_URL;
 
 // Keep in sync with the barbers in Booking.jsx and the webhook route
 const BARBERS = {
