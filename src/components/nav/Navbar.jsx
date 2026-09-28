@@ -13,7 +13,7 @@ const BRAND = "Old Mill Barbers";
 
 const LINKS = [
   { href: "#services", label: "Services" },
-  { href: "/barbers", label: "Our barbers" },
+  { href: "#barbers", label: "Our barbers" },
   { href: "/prices", label: "Prices" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Find us" },
@@ -66,7 +66,7 @@ export default function Navbar() {
           })}
         </ul>
 
-        <Link href="/book" className={`${styles.cta} ${styles.ctaDesktop}`}>
+        <Link href="#booking" className={`${styles.cta} ${styles.ctaDesktop}`}>
           Book a cut
         </Link>
 
@@ -104,7 +104,7 @@ export default function Navbar() {
             );
           })}
         </ul>
-        <Link href="/book" className={`${styles.cta} ${styles.ctaMobile}`}>
+        <Link href="#booking" className={`${styles.cta} ${styles.ctaMobile}`}>
           Book a cut
         </Link>
       </div>

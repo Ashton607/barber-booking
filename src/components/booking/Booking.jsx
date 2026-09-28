@@ -229,42 +229,7 @@ export default function Booking() {
     setRefreshKey((k) => k + 1);
   }
 
-  if (status === "success") {
-    return (
-      <section id="booking" className={`${styles.booking} ${figtree.className}`}>
-        <div className={styles.inner}>
-          <div className={`${styles.panel} ${styles.confirmation}`}>
-            <div className={styles.confirmIcon}>
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path d="M5 12.5l4.5 4.5L19 7.5" />
-              </svg>
-            </div>
-            <h1 className={`${styles.confirmTitle} ${bevan.className}`}>
-              Payment received
-            </h1>
-            <p className={styles.confirmText}>
-              Your chair is booked. A confirmation email is on its way, and
-              the details are also in your inbox from Yoco.
-            </p>
-            <button type="button" className={styles.secondary} onClick={bookAnother}>
-              Book another cut
-            </button>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  
 
   return (
     <section id="booking" className={`${styles.booking} ${figtree.className}`}>

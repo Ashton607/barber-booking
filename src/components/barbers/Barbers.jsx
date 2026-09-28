@@ -96,7 +96,7 @@ function SocialIcon({ name }) {
 
 export default function Barbers() {
   return (
-    <main className={`${styles.page} ${figtree.className}`}>
+    <main className={`${styles.page} ${figtree.className}`} id="barbers">
       <div className={styles.inner}>
         <header className={styles.header}>
           <h1 className={`${styles.title} ${bevan.className}`}>Our barbers</h1>
