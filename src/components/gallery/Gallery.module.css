@@ -1,0 +1,427 @@
+.section {
+  --paper: #f6f7f9;
+  --ink: #10203a;
+  --muted: #4a5a75;
+  --pole-red: #c0272d;
+  --pole-blue: #2a5da8;
+  --line: #d9dee6;
+
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 5rem;
+}
+
+/* Header */
+.header {
+  max-width: 40rem;
+  margin-bottom: 3.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.lead {
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  font-size: 1.2rem;
+  line-height: 1.55;
+}
+
+/* Card grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3rem 2.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+/* Before/after slider */
+.compare {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #dfe4ec;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.photo {
+  object-fit: cover;
+}
+
+/* The "after" photo only shows to the right of the divider */
+.afterWrap {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 var(--pos));
+}
+
+.chip {
+  position: absolute;
+  top: 0.75rem;
+  z-index: 1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.chipBefore {
+  left: 0.75rem;
+}
+
+.chipAfter {
+  right: 0.75rem;
+}
+
+/* Invisible range input covering the photo: it does the dragging,
+   touch and keyboard work, while .handle is only the visual */
+.range {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.range::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+.range::-moz-range-thumb {
+  width: 2px;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  z-index: 2;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--ink);
+  pointer-events: none;
+}
+
+.knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+}
+
+.range:focus-visible ~ .handle .knob {
+  outline: 3px solid var(--pole-blue);
+  outline-offset: 3px;
+}
+
+/* Static pole stripe between the photo and the caption */
+.stripe {
+  height: 12px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--pole-red) 0 7.0711px,
+    #fff 7.0711px 14.1421px,
+    var(--pole-blue) 14.1421px 21.2132px,
+    #fff 21.2132px 28.2843px
+  );
+  background-size: 40px 40px;
+}
+
+/* Caption */
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 1.25rem 1.5rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.by {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.expand {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.expand:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Show more */
+.moreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.more {
+  padding: 0.85rem 1.75rem;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.more:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Keyboard focus */
+.expand:focus-visible,
+.more:focus-visible,
+.close:focus-visible,
+.book:focus-visible {
+  outline: 3px solid var(--pole-blue);
+  outline-offset: 3px;
+}
+
+/* Closing call to action */
+.closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  margin-top: 5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.closingTitle {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.book {
+  display: inline-block;
+  padding: 0.9rem 1.75rem;
+  border-radius: 4px;
+  background: var(--pole-red);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease-out;
+}
+
+.book:hover {
+  background: var(--ink);
+}
+
+/* Enlarged view */
+.dialog {
+  width: min(92vw, 34rem);
+  max-height: 94dvh;
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  background: #fff;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.dialog::backdrop {
+  background: rgba(16, 32, 58, 0.72);
+}
+
+.dialogInner {
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.dialogHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dialogTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.close {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.close:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Keeps the whole enlarged photo on screen on short viewports */
+.dialogInner .compare {
+  width: min(100%, 60vh);
+  margin: 0 auto;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+}
+
+.hint {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 2rem;
+  }
+}
+
+/* Phone */
+@media (max-width: 560px) {
+  .inner {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    margin-right: 8px;
+  }
+
+  .moreWrap {
+    margin-top: 2.5rem;
+  }
+
+  .closing {
+    margin-top: 3.5rem;
+  }
+
+  .book,
+  .more {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expand,
+  .more,
+  .close,
+  .book {
+    transition: none;
+  }
+}

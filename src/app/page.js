@@ -1,5 +1,6 @@
 import Barbers from "@/components/barbers/Barbers";
 import Booking from "@/components/booking/Booking";
+import Gallery from "@/components/gallery/Gallery";
 import Hero from "@/components/hero/Hero";
 import Services from "@/components/services/Services";
 import Testimonial from "@/components/testimonials/Testimonials";
@@ -13,6 +14,7 @@ export default function Home() {
     <Barbers/>
     <Testimonial/>
     <Booking/>
+    <Gallery/>
     </div>
   );
 }

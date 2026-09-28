@@ -15,7 +15,7 @@ const LINKS = [
   { href: "#services", label: "Services" },
   { href: "#barbers", label: "Our barbers" },
   { href: "/prices", label: "Prices" },
-  { href: "/gallery", label: "Gallery" },
+  { href: "#gallery", label: "Gallery" },
   { href: "/contact", label: "Find us" },
 ];
 
