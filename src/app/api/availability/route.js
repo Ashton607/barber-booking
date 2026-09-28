@@ -1,68 +1,114 @@
 import { getCalendarClient, BOOKING_CONFIG } from "@/lib/google-calendar";
 
+// Keep in sync with the barbers in Booking.jsx and the booking routes
+const BARBERS = ["marcus", "dev", "tomas"];
+
+// Milliseconds the given time zone is ahead of UTC at a given instant
+function getOffsetMs(timestamp, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(new Date(timestamp));
+
+  const p = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  return asUtc - timestamp;
+}
+
+// Turns a wall-clock time in the shop's time zone into the correct UTC instant.
+// The server runs in UTC, so we can't rely on its local clock for this.
+function zonedTimeToUtc(dateStr, minutesIntoDay, timeZone) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const utcGuess = Date.UTC(y, m - 1, d, 0, minutesIntoDay);
+  return new Date(utcGuess - getOffsetMs(utcGuess, timeZone));
+}
+
 // GET /api/availability?date=2026-09-20&barber=marcus
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
+  const barber = searchParams.get("barber");
 
-  if (!date) {
-    return Response.json({ error: "Missing date parameter" }, { status: 400 });
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return Response.json({ error: "Missing or invalid date parameter" }, { status: 400 });
+  }
+
+  if (!BARBERS.includes(barber)) {
+    return Response.json({ error: "Missing or unknown barber" }, { status: 400 });
   }
 
   try {
-    // Reading BOOKING_CONFIG and creating the calendar client now happen
-    // inside the try block, so a bad env var or a bad config value gets
-    // caught and logged instead of crashing the route silently
     const { calendarId, timezone, startHour, endHour, slotMinutes } = BOOKING_CONFIG;
 
-    const dayStart = new Date(`${date}T00:00:00`);
-    const dayEnd = new Date(`${date}T23:59:59`);
+    // Day of the week for the calendar date itself, independent of server time zone
+    const day = new Date(`${date}T00:00:00Z`).getUTCDay();
 
-    // Block days the shop is closed: Sunday and Monday.
-    // Keep this in sync with OPEN_DAYS in Booking.jsx (Tuesday to Saturday)
-    const day = dayStart.getDay();
+    // Closed Sunday and Monday. Keep in sync with OPEN_DAYS in Booking.jsx
     if (day === 0 || day === 1) {
       return Response.json({ slots: [] });
     }
 
+    const dayStart = zonedTimeToUtc(date, 0, timezone);
+    const dayEnd = zonedTimeToUtc(date, 24 * 60, timezone);
+
     const calendar = getCalendarClient();
 
-    const freeBusy = await calendar.freebusy.query({
-      requestBody: {
-        timeMin: dayStart.toISOString(),
-        timeMax: dayEnd.toISOString(),
-        timeZone: timezone,
-        items: [{ id: calendarId }],
-      },
+    // List the day's events (rather than free/busy) so each one can be
+    // matched to a barber through the tag the booking routes save on it
+    const result = await calendar.events.list({
+      calendarId,
+      timeMin: dayStart.toISOString(),
+      timeMax: dayEnd.toISOString(),
+      singleEvents: true,
+      maxResults: 250,
     });
 
-    const busy = freeBusy.data.calendars[calendarId]?.busy || [];
+    const busy = (result.data.items || [])
+      // Ignore cancelled events and ones marked "free"
+      .filter((ev) => ev.status !== "cancelled" && ev.transparency !== "transparent")
+      // An event blocks this barber if it's tagged with them. Events with no
+      // barber tag (a lunch break, a holiday you added by hand) block everyone.
+      .filter((ev) => {
+        const tagged = ev.extendedProperties?.private?.barber;
+        return !tagged || tagged === barber;
+      })
+      .map((ev) => ({
+        // All-day events have a date instead of a dateTime: block the whole day
+        start: ev.start?.dateTime ? new Date(ev.start.dateTime) : dayStart,
+        end: ev.end?.dateTime ? new Date(ev.end.dateTime) : dayEnd,
+      }));
 
-    // Build every possible slot for the business day
+    // Every possible slot for the business day, in the shop's time zone
     const allSlots = [];
-    for (let hour = startHour; hour < endHour; hour += slotMinutes / 60) {
-      const slotStart = new Date(date);
-      slotStart.setHours(Math.floor(hour), (hour % 1) * 60, 0, 0);
-      const slotEnd = new Date(slotStart.getTime() + slotMinutes * 60000);
-      allSlots.push({ start: slotStart, end: slotEnd });
+    for (
+      let mins = startHour * 60;
+      mins + slotMinutes <= endHour * 60;
+      mins += slotMinutes
+    ) {
+      const start = zonedTimeToUtc(date, mins, timezone);
+      const end = new Date(start.getTime() + slotMinutes * 60000);
+      allSlots.push({ start, end });
     }
 
-    // Filter out any slot that overlaps a busy period, and past slots for today
+    // Drop slots in the past, and any that overlap one of this barber's bookings
     const now = new Date();
     const availableSlots = allSlots.filter(({ start, end }) => {
       if (start < now) return false;
-      const overlapsBusy = busy.some((b) => {
-        const busyStart = new Date(b.start);
-        const busyEnd = new Date(b.end);
-        return start < busyEnd && end > busyStart;
-      });
-      return !overlapsBusy;
+      return !busy.some((b) => start < b.end && end > b.start);
     });
 
     return Response.json({
-      slots: availableSlots.map((s) => ({
-        start: s.start.toISOString(),
-        label: s.start.toLocaleTimeString("en-US", {
+      slots: availableSlots.map(({ start }) => ({
+        start: start.toISOString(),
+        // Formatted in the shop's time zone, so it matches the email and calendar
+        label: start.toLocaleTimeString("en-US", {
+          timeZone: timezone,
           hour: "numeric",
           minute: "2-digit",
         }),
@@ -70,9 +116,8 @@ export async function GET(request) {
     });
   } catch (err) {
     console.error("Availability fetch failed:", err);
-    // TEMPORARY: includes the real error message in the response so it shows
-    // up directly in the browser's Network tab. Remove the `detail` line
-    // once this is working, so internal errors aren't exposed to visitors.
+    // TEMPORARY: exposes the real error in the Network tab for debugging.
+    // Remove the `detail` line once you're happy everything works.
     return Response.json(
       { error: "Could not load availability", detail: String(err?.message || err) },
       { status: 500 }
