@@ -16,10 +16,10 @@ const SERVICES = {
   kids: { name: "Kids' cut", price: 30 },
   beard: { name: "Beard trim", price: 25 },
   shave: { name: "Hot towel shave", price: 25 },
-  "cut-beard": { name: "Cut and beard", price: 80 },
-  "cut-shave": { name: "Cut and hot towel shave", price: 70 },
-  "wash-style": { name: "Wash & style", price: 20 },
-  "eyebrows": { name: "Eyebrow tidy", price: 25 },
+  cutbeard: { name: "Cut and beard", price: 80 },
+  cutshave: { name: "Cut and hot towel shave", price: 70 },
+  washstyle: { name: "Wash & style", price: 20 },
+  eyebrows: { name: "Eyebrow tidy", price: 25 },
 };
 
 // POST /api/checkout
