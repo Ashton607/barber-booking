@@ -49,9 +49,9 @@ export async function GET(request) {
     // Day of the week for the calendar date itself, independent of server time zone
     const day = new Date(`${date}T00:00:00Z`).getUTCDay();
 
-    // Closed Sunday and Monday. Keep in sync with OPEN_DAYS in Booking.jsx
-    if (day === 0 || day === 1) {
-      return Response.json({ slots: [] });
+    // Closed Sunday. Keep in sync with OPEN_DAYS in Booking.jsx
+    if (day === 0) {   
+    return Response.json({ slots: [] });
     }
 
     const dayStart = zonedTimeToUtc(date, 0, timezone);

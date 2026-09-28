@@ -14,7 +14,7 @@ const MONTH_NAMES = [
 ];
 
 // Open Tuesday to Saturday (0 = Sunday)
-const OPEN_DAYS = [2, 3, 4, 5, 6];
+const OPEN_DAYS = [1, 2, 3, 4, 5, 6]
 
 const BARBERS = [
   { id: "marcus", name: "Marcus", role: "Master barber" },
